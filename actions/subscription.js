@@ -57,30 +57,29 @@ export async function createProSubscription() {
     }
 
     try {
-        // This logic will get implemented only for the first time because the user is not yet created on cashfree(because from db we wont get any cashfreeId it will be empty)
         let customerId = user.cashfreeCustomerId;
+
         if (!customerId) {
-            const customer = await Cashfree.PGCreateCustomer({
-                customer_id: `user_${user.id}`,
+            const customer = await Cashfree.PGCreateCustomer("2025-01-01", {
+                customer_phone: user.phone || "9999999999",
                 customer_email: user.email,
-                customer_phone: "999999999",
                 customer_name: user.name ?? "User",
             });
 
-            customerId = customer.data.customer_id;
+            // The API returns customer_uid, not customer_id
+            customerId = customer.data.customer_uid;
 
-            // Now the customer is created on cashfree and we have the cashfreeId now so update it in db as well
+            // Update the database with the Cashfree-generated customer_uid
             await db.user.update({
                 where: { id: user.id },
                 data: {
-                    cashfreeCustomerId: customerId, // reuse field
+                    cashfreeCustomerId: customerId,
                 },
             });
-
         }
     } catch (error) {
         console.log("Error in creating cashfree customer: ", error.message);
-        throw new Error("Failed to create cashfree customer", error.message);
+        throw new Error("Failed to create cashfree customer: " + error.message);
     }
 
     try {
