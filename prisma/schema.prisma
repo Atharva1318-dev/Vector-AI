@@ -1,0 +1,140 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "./generated"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model User {
+  id      String      @id @default(uuid())
+  clerkUserId String    @unique
+  email   String   @unique
+  name    String?
+  imageUrl  String?
+  industry  String?
+  // So this fields:[industry],references:[industry] line means that the industry column of IndustryInsights will be connected to the industry column of this table, as it is the foreign key
+  industryInsights  IndustryInsights? @relation(fields:[industry],references:[industry]) //this is a Prisma relation field like a virtual column the actual foreign key column is industry only
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+
+  bio String?
+  experience Int?
+  skills  String[] //it will be an array of skills
+
+
+  plan                Plan                @default(FREE)
+  subscriptionStatus  SubscriptionStatus @default(ACTIVE)
+
+  
+  cashfreeCustomerId       String?
+  cashfreeSubscriptionId  String?
+  currentPeriodEnd        DateTime?
+
+  // Usage limits (reset daily via cron)
+  requestsToday      Int      @default(0)
+  lastRequestReset   DateTime @default(now())
+
+  assessments Assessment[]
+  resume  Resume?
+  coverLetter CoverLetter[] // each user can have more than one cover letter
+}
+
+model Assessment{
+  id              String    @id @default(cuid())
+  userId          String 
+  user            User      @relation(fields: [userId],references: [id])    //this tables userId field refernces to User's tables id field 
+  quizScore       Float   
+  questions       Json[] //this will be an array of {question,answer,userAnswer,isCorrect}
+  category        String // category of the quiz
+  improvementTip  String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([userId])
+} 
+
+model Resume{
+  id          String    @id @default(cuid())
+  userId      String    @unique //only one resume per user
+  user        User      @relation(fields: [userId], references: [id])
+  content     String    @db.Text
+  atsScore    Float?
+  feedback    String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime   @updatedAt
+} 
+
+model CoverLetter {
+  id              String    @id @default(cuid())
+  userId          String    
+  user            User      @relation(fields: [userId], references: [id])
+  content         String    @db.Text
+  jobDescription  String?
+  companyName     String
+  jobTitle        String
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  @@index([userId])
+} 
+
+model IndustryInsights{
+  id                    String    @id @default(cuid())
+  industry              String    @unique // eg: "tech-software-development"
+
+  users                 User[]   //the users in this industry
+
+
+  salaryRanges          Json[]    //Array of {role:string,min:float,max:float,median:float,location:string?}
+
+  growthRate            Float      //Industry growth rate
+  demandLevel           demandLevel     //"High" "Medium" "Low"
+  topSkills             String[]
+
+  marketOutlook         marketOutlook    //"Positive" "Neutral" "Negative"
+  keyTrends             String[]   //Array of current industry trends
+
+  recommendationSkills  String[]
+
+  lastUpdated           DateTime    @default(now())
+  nextUpdate            DateTime  //the time of the next update
+
+  @@index([industry]) 
+} 
+
+// As we saw above the marketOutlook can have only 3 values so An enum is a way to define a fixed set of allowed values for a field.
+enum marketOutlook {
+  POSITIVE
+  NEUTRAL
+  NEGATIVE
+}
+
+enum demandLevel {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+// Now the command to run on terminal in order to push these models to neon database is:
+// npx prisma migrate dev --name create-models
+
+enum Plan {
+  FREE
+  PRO
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  INACTIVE
+}
