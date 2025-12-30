@@ -1,10 +1,12 @@
-"use client"
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Check } from "lucide-react";
+"use client";
 
+import { useUser } from "@clerk/nextjs";
+import { Button } from "@/components/ui/button";
 import { createProSubscription } from "@/actions/subscription";
+import { useEffect, useState } from "react";
+import { Loader2, Check } from "lucide-react"; // Added Check import
+import { toast } from "sonner";
+import { load } from "@cashfreepayments/cashfree-js";
 
 const pricingPlans = [
     {
@@ -38,6 +40,36 @@ const pricingPlans = [
 ];
 
 const PricingCard = () => {
+    const { user } = useUser();
+    const [loading, setLoading] = useState(false);
+
+    const handleUpgrade = async () => {
+        setLoading(true);
+        try {
+            // 1. Initialize Cashfree SDK
+            // Matches screenshot Step 2
+            const cashfree = await load({
+                mode: process.env.CASHFREE_ENV === "PROD" ? "production" : "sandbox",
+            });
+
+            // 2. Create Subscription on Server
+            const { subscriptionSessionId } = await createProSubscription();
+
+            // 3. Trigger Checkout
+            // Matches screenshot Step 4
+            const checkoutOptions = {
+                subsSessionId: subscriptionSessionId,
+                redirectTarget: "_self", // Or "_blank"
+            };
+
+            cashfree.subscriptionsCheckout(checkoutOptions);
+
+        } catch (error) {
+            console.error("Subscription Error:", error);
+            toast.error("Failed to start subscription. Please try again.");
+            setLoading(false);
+        }
+    };
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl px-6 mx-auto">
             {pricingPlans.map((plan, index) => (
@@ -87,33 +119,27 @@ const PricingCard = () => {
                     </CardContent>
 
                     <CardFooter className="pt-4">
-                        {plan.name == 'FREE' ?
-                            <>
-                                <Link href="/dashboard">
-                                    <Button
-                                        className={`w-full h-12 rounded-xl text-base font-semibold transition-all duration-300 ${plan.popular
-                                            ? "bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white shadow-lg shadow-purple-500/25"
-                                            : "bg-white text-black hover:bg-neutral-200"
-                                            }`}
-                                    >
-                                        {plan.cta}
-                                    </Button>
-                                </Link>
-                            </> :
-                            <>
-                                <Button
-                                    className={`w-full h-12 rounded-xl text-base font-semibold transition-all duration-300 ${plan.popular
-                                        ? "bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white shadow-lg shadow-purple-500/25"
-                                        : "bg-white text-black hover:bg-neutral-200"
-                                        }`}
-                                    onClick={async () => {
-                                        const paymentLink = await createProSubscription();
-                                        window.location.href = paymentLink;
-                                    }}
-                                >
-                                    {plan.cta}
-                                </Button>
-                            </>}
+                        {plan.name === "PRO" ? (
+                            <Button
+                                disabled={loading}
+                                className="w-full h-12 rounded-xl text-base font-semibold bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white shadow-lg shadow-purple-500/25"
+                                onClick={handleUpgrade}
+                            >
+                                {loading ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        Processing...
+                                    </>
+                                ) : (
+                                    plan.cta
+                                )}
+                            </Button>
+                        ) : (
+                            // Free plan button
+                            <Button className="w-full h-12 rounded-xl text-base font-semibold bg-white text-black hover:bg-neutral-200">
+                                {plan.cta}
+                            </Button>
+                        )}
                     </CardFooter>
                 </Card>
             ))}
