@@ -4,7 +4,7 @@ import crypto from "crypto";
 
 export async function POST(req) {
     try {
-        // 1. Get Raw Body (Needed for verification & parsing)
+
         const rawBody = await req.text();
         const signature = req.headers.get("x-webhook-signature");
         const timestamp = req.headers.get("x-webhook-timestamp");
