@@ -13,7 +13,6 @@ const PRO_PLAN = {
     description: "Pro plan for Vector AI"
 };
 
-// Helper for Cashfree API calls (v2025-01-01)
 const cashfreeRequest = async (endpoint, method = "GET", body = null) => {
     // 1. Determine URL based on Env
     const baseUrl = process.env.CASHFREE_ENV === "PROD"
@@ -38,11 +37,13 @@ const cashfreeRequest = async (endpoint, method = "GET", body = null) => {
         const data = await response.json();
 
         if (!response.ok) {
+            // We log this but let the caller handle specific 404s (like plan not found)
             console.error("Cashfree API Error:", data);
             throw new Error(data.message || `API request failed: ${response.statusText}`);
         }
         return data;
     } catch (error) {
+        // Log generic network/parsing errors
         console.error("Cashfree Request Failed:", error);
         throw error;
     }
@@ -102,32 +103,38 @@ export async function createProSubscription() {
     if (!user) throw new Error("User not found");
 
     // 2. Ensure Plan Exists (Idempotent check)
-    // We try to fetch the plan. If it fails (404), we create it.
     try {
         await cashfreeRequest(`/plans/${PRO_PLAN.planId}`);
     } catch (error) {
-        console.log("Plan not found, creating new plan...");
-        await cashfreeRequest("/plans", "POST", {
-            plan_id: PRO_PLAN.planId,
-            plan_name: PRO_PLAN.planName,
-            plan_type: "PERIODIC",
-            plan_currency: "INR",
-            plan_recurring_amount: PRO_PLAN.amount,
-            plan_max_amount: PRO_PLAN.amount,
-            plan_intervals: PRO_PLAN.intervals,
-            plan_interval_type: PRO_PLAN.intervalType,
-            plan_note: PRO_PLAN.description,
-        });
+        // If plan doesn't exist, create it
+        if (error.message.includes("does not exist") || error.message.includes("not found")) {
+            console.log("Plan not found, creating new plan...");
+            await cashfreeRequest("/plans", "POST", {
+                plan_id: PRO_PLAN.planId,
+                plan_name: PRO_PLAN.planName,
+                plan_type: "PERIODIC",
+                plan_currency: "INR",
+                plan_recurring_amount: PRO_PLAN.amount,
+                plan_max_amount: PRO_PLAN.amount,
+                plan_intervals: PRO_PLAN.intervals,
+                plan_interval_type: PRO_PLAN.intervalType,
+                plan_note: PRO_PLAN.description,
+            });
+        } else {
+            // Re-throw if it's a different error
+            throw error;
+        }
     }
 
     // 3. Create Subscription Session
     try {
-        // Unique ID for this subscription attempt
         const subscriptionId = `SUB-${user.id}-${Date.now()}`;
 
         const payload = {
             subscription_id: subscriptionId,
-            plan_id: PRO_PLAN.planId,
+            plan_details: {
+                plan_id: PRO_PLAN.planId, // Fixed: Nested inside plan_details
+            },
             customer_details: {
                 customer_name: user.name || "Vector AI User",
                 customer_email: user.email,
@@ -157,6 +164,6 @@ export async function createProSubscription() {
 
     } catch (error) {
         console.error("Error creating subscription:", error.message);
-        throw new Error("Failed to create subscription");
+        throw new Error("Failed to create subscription: " + error.message);
     }
 }

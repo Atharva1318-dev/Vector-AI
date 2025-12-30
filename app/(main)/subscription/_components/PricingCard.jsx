@@ -7,6 +7,15 @@ import { useEffect, useState } from "react";
 import { Loader2, Check } from "lucide-react"; // Added Check import
 import { toast } from "sonner";
 import { load } from "@cashfreepayments/cashfree-js";
+import {
+    Card,
+    CardAction,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card";
 
 const pricingPlans = [
     {
