@@ -1,22 +1,22 @@
 "use server";
 
 import { db } from "@/lib/prisma";
-import { auth } from "@clerk/nextjs/server";
+import { auth } from '@clerk/nextjs/server';
 
+// 1. Define Plan Details
 const PRO_PLAN = {
-    planId: "PRO_MONTHLY_V1",
-    planName: "Pro Monthly",
+    planId: "PRO_MONTHLY_PLAN", // Use a consistent ID
+    planName: "Pro Monthly Subscription",
     amount: 199,
     intervalType: "MONTH",
     intervals: 1,
-    description: "Pro plan for Vector AI",
+    description: "Pro plan for Vector AI"
 };
 
-// Helper for Cashfree API calls
+// Helper for Cashfree API calls (v2025-01-01)
 const cashfreeRequest = async (endpoint, method = "GET", body = null) => {
-    // Check strict equality for PROD, otherwise default to SANDBOX (TEST)
-    const isProd = process.env.CASHFREE_ENV === "PROD";
-    const baseUrl = isProd
+    // 1. Determine URL based on Env
+    const baseUrl = process.env.CASHFREE_ENV === "PROD"
         ? "https://api.cashfree.com/pg"
         : "https://sandbox.cashfree.com/pg";
 
@@ -24,7 +24,7 @@ const cashfreeRequest = async (endpoint, method = "GET", body = null) => {
         "Content-Type": "application/json",
         "x-client-id": process.env.CASHFREE_APP_ID,
         "x-client-secret": process.env.CASHFREE_SECRET_KEY,
-        "x-api-version": "2025-01-01", // Latest API Version
+        "x-api-version": "2025-01-01", // Using the version from your docs
     };
 
     const config = {
@@ -48,6 +48,49 @@ const cashfreeRequest = async (endpoint, method = "GET", body = null) => {
     }
 };
 
+export async function getUserSubscription() {
+    const { userId } = await auth();
+    if (!userId) throw new Error("Unauthorized");
+
+    const user = await db.user.findUnique({
+        where: { clerkUserId: userId },
+        select: {
+            plan: true,
+            subscriptionStatus: true,
+            currentPeriodEnd: true,
+        },
+    });
+
+    if (!user) {
+        throw new Error("User not found");
+    }
+
+    return user;
+}
+
+export async function isProUser() {
+    const { userId } = await auth();
+    if (!userId) return false;
+
+    const user = await db.user.findUnique({
+        where: { clerkUserId: userId },
+        select: {
+            plan: true,
+            subscriptionStatus: true,
+            currentPeriodEnd: true, // Optional: Check if expired
+        },
+    });
+
+    if (!user) return false;
+
+    // Check status and if period hasn't passed (optional robustness)
+    const isValid = user.plan === "PRO" &&
+        user.subscriptionStatus === "ACTIVE" &&
+        (user.currentPeriodEnd ? new Date(user.currentPeriodEnd) > new Date() : true);
+
+    return isValid;
+}
+
 export async function createProSubscription() {
     const { userId } = await auth();
     if (!userId) throw new Error("Unauthorized");
@@ -58,11 +101,11 @@ export async function createProSubscription() {
 
     if (!user) throw new Error("User not found");
 
-    // 1. Ensure Plan Exists (Idempotent check)
+    // 2. Ensure Plan Exists (Idempotent check)
+    // We try to fetch the plan. If it fails (404), we create it.
     try {
         await cashfreeRequest(`/plans/${PRO_PLAN.planId}`);
     } catch (error) {
-        // If plan doesn't exist (404), create it
         console.log("Plan not found, creating new plan...");
         await cashfreeRequest("/plans", "POST", {
             plan_id: PRO_PLAN.planId,
@@ -77,8 +120,9 @@ export async function createProSubscription() {
         });
     }
 
-    // 2. Create Subscription & Get Session ID
+    // 3. Create Subscription Session
     try {
+        // Unique ID for this subscription attempt
         const subscriptionId = `SUB-${user.id}-${Date.now()}`;
 
         const payload = {
@@ -87,7 +131,7 @@ export async function createProSubscription() {
             customer_details: {
                 customer_name: user.name || "Vector AI User",
                 customer_email: user.email,
-                customer_phone: user.phone || "9999999999", // Required
+                customer_phone: user.phone || "9999999999", // Required field
                 customer_id: user.id,
             },
             return_url: `${process.env.NEXT_PUBLIC_APP_URL}/subscription/success`,
@@ -96,7 +140,7 @@ export async function createProSubscription() {
 
         const response = await cashfreeRequest("/subscriptions", "POST", payload);
 
-        // 3. Save to DB
+        // 4. Save to DB
         await db.user.update({
             where: { id: user.id },
             data: {
@@ -105,7 +149,7 @@ export async function createProSubscription() {
             },
         });
 
-        // 4. Return the Session ID for the frontend SDK
+        // 5. Return Session ID to Frontend
         return {
             subscriptionSessionId: response.subscription_session_id,
             subscriptionId: response.subscription_id
@@ -115,19 +159,4 @@ export async function createProSubscription() {
         console.error("Error creating subscription:", error.message);
         throw new Error("Failed to create subscription");
     }
-}
-
-export async function getUserSubscription() {
-    const { userId } = await auth();
-    if (!userId) return null;
-
-    const user = await db.user.findUnique({
-        where: { clerkUserId: userId },
-        select: {
-            plan: true,
-            subscriptionStatus: true,
-            currentPeriodEnd: true,
-        },
-    });
-    return user;
 }
