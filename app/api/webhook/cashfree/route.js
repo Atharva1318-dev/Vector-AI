@@ -1,6 +1,6 @@
 import { db } from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import { Cashfree } from "@/lib/cashfree"; // Import the initialized SDK
+import { Cashfree } from "@/lib/cashfree";
 
 export async function POST(req) {
     try {
