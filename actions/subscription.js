@@ -1,113 +1,165 @@
 "use server";
+
 import { db } from "@/lib/prisma";
 import { auth } from '@clerk/nextjs/server';
-import { Cashfree } from "@/lib/cashfree";
 
+// 1. Define Plan Details
+const PRO_PLAN = {
+    planId: "PRO_MONTHLY_PLAN", // Use a consistent ID
+    planName: "Pro Monthly Subscription",
+    amount: 199,
+    intervalType: "MONTH",
+    intervals: 1,
+    description: "Pro plan for Vector AI"
+};
+
+// 2. Helper for Cashfree API calls
+const getCashfreeBaseUrl = () => {
+    return process.env.CASHFREE_ENV === "PROD"
+        ? "https://api.cashfree.com/api/v2"
+        : "https://test.cashfree.com/api/v2";
+};
+
+const cashfreeRequest = async (endpoint, method = "GET", body = null) => {
+    const baseUrl = getCashfreeBaseUrl();
+    const headers = {
+        "Content-Type": "application/json",
+        "x-client-id": process.env.CASHFREE_APP_ID,
+        "x-client-secret": process.env.CASHFREE_SECRET_KEY,
+        "x-api-version": "2022-09-01", // Stable Subscription API version
+    };
+
+    const config = {
+        method,
+        headers,
+        body: body ? JSON.stringify(body) : null,
+    };
+
+    try {
+        const response = await fetch(`${baseUrl}${endpoint}`, config);
+        const data = await response.json();
+
+        if (!response.ok) {
+            console.error("Cashfree API Error:", data);
+            throw new Error(data.message || `API request failed: ${response.statusText}`);
+        }
+        return data;
+    } catch (error) {
+        console.error("Cashfree Request Failed:", error);
+        throw error;
+    }
+};
 
 export async function getUserSubscription() {
     const { userId } = await auth();
     if (!userId) throw new Error("Unauthorized");
 
-    const user = await db.user.findUnique(
-        {
-            where: { clerkUserId: userId, }
-
-        }
-    )
+    const user = await db.user.findUnique({
+        where: { clerkUserId: userId },
+        select: {
+            plan: true,
+            subscriptionStatus: true,
+            currentPeriodEnd: true,
+        },
+    });
 
     if (!user) {
         throw new Error("User not found");
     }
 
-    try {
-        const user = await db.user.findUnique({
-            where: { clerkUserId: userId },
-            select: {
-                plan: true,
-                subscriptionStatus: true,
-            },
-        });
-
-        return user;
-    } catch (error) {
-        console.log("Error in getting subscription status: ", error.message);
-        throw new Error("Failed to get user subscription status", error.message);
-    }
+    return user;
 }
 
 export async function isProUser() {
-    const user = await getUserSubscription();
-    return user?.plan === "PRO" && user?.subscriptionStatus === "ACTIVE";
-}
+    const { userId } = await auth();
+    if (!userId) return false;
 
+    const user = await db.user.findUnique({
+        where: { clerkUserId: userId },
+        select: {
+            plan: true,
+            subscriptionStatus: true,
+            currentPeriodEnd: true, // Optional: Check if expired
+        },
+    });
+
+    if (!user) return false;
+
+    // Check status and if period hasn't passed (optional robustness)
+    const isValid = user.plan === "PRO" &&
+        user.subscriptionStatus === "ACTIVE" &&
+        (user.currentPeriodEnd ? new Date(user.currentPeriodEnd) > new Date() : true);
+
+    return isValid;
+}
 
 export async function createProSubscription() {
     const { userId } = await auth();
     if (!userId) throw new Error("Unauthorized");
 
-    const user = await db.user.findUnique(
-        {
-            where: { clerkUserId: userId, }
-
-        }
-    )
+    const user = await db.user.findUnique({
+        where: { clerkUserId: userId },
+    });
 
     if (!user) {
         throw new Error("User not found");
     }
 
+    // 1. Ensure the Plan Exists in Cashfree
     try {
-        let customerId = user.cashfreeCustomerId;
-
-        if (!customerId) {
-            const customer = await Cashfree.PGCreateCustomer("2025-01-01", {
-                customer_phone: user.phone || "9999999999",
-                customer_email: user.email,
-                customer_name: user.name ?? "User",
-            });
-
-            // The API returns customer_uid, not customer_id
-            customerId = customer.data.customer_uid;
-
-            // Update the database with the Cashfree-generated customer_uid
-            await db.user.update({
-                where: { id: user.id },
-                data: {
-                    cashfreeCustomerId: customerId,
-                },
-            });
-        }
+        await cashfreeRequest(`/subscription-plans/${PRO_PLAN.planId}`);
+        // If successful, plan exists.
     } catch (error) {
-        console.log("Error in creating cashfree customer: ", error.message);
-        throw new Error("Failed to create cashfree customer: " + error.message);
+        // If plan not found (usually 404), create it
+        console.log("Plan not found, creating new plan...");
+        try {
+            await cashfreeRequest("/subscription-plans", "POST", {
+                planId: PRO_PLAN.planId,
+                planName: PRO_PLAN.planName,
+                type: "PERIODIC",
+                maxCycles: 0, // Infinite
+                amount: PRO_PLAN.amount,
+                intervalType: PRO_PLAN.intervalType,
+                intervals: PRO_PLAN.intervals,
+                description: PRO_PLAN.description,
+            });
+        } catch (createError) {
+            // If it fails because it already exists (race condition), ignore.
+            console.error("Error creating plan:", createError);
+        }
     }
 
+    // 2. Create the Subscription
     try {
-        // Create subscription
-        const subscription = await Cashfree.PGCreateSubscription({
-            subscription_id: `sub_${user.id}_${Date.now()}`,
-            customer_id: customerId,
-            plan_id: "pro_monthly", // create this in Cashfree dashboard
-            subscription_amount: 199,
-            subscription_currency: "INR",
-            subscription_period: "MONTH",
-            subscription_interval: 1,
-            return_url: `${process.env.NEXT_PUBLIC_APP_URL}/subscription/success`,
-        });
+        // Generate a unique subscription ID
+        const subscriptionId = `SUB-${user.id}-${Date.now()}`;
 
-        // Save subscription id
+        const subscriptionPayload = {
+            subscriptionId: subscriptionId,
+            planId: PRO_PLAN.planId,
+            customerName: user.name || "Vector AI User",
+            customerEmail: user.email,
+            customerPhone: user.phone || "9999999999", // Required field
+            returnUrl: `${process.env.NEXT_PUBLIC_APP_URL}/subscription/success`,
+            // Optional: subscriptionExpiry, authorizationDetails, etc.
+        };
+
+        const subscriptionResponse = await cashfreeRequest("/subscriptions", "POST", subscriptionPayload);
+
+        // 3. Save reference in Database
         await db.user.update({
             where: { id: user.id },
             data: {
-                cashfreeSubscriptionId: subscription.data.subscription_id,
+                cashfreeSubscriptionId: subscriptionResponse.subReferenceId || subscriptionId,
+                cashfreeCustomerId: user.id, // Store local user ID as customer ref if needed
             },
         });
 
-        return subscription.data.payment_link;
+        // 4. Return the Auth Link
+        return subscriptionResponse.authLink;
+
     } catch (error) {
-        console.log("Error in creating subscription: ", error.message);
-        throw new Error("Failed to create subscription", error.message);
+        console.error("Error in creating subscription:", error.message);
+        throw new Error("Failed to create subscription: " + error.message);
     }
-
-
 }
