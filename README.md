@@ -1,15 +1,13 @@
 # VectorAI - AI Career Coach 🚀
 
-![Banner Placeholder](link_to_banner_image_here)
-
 ## 🌟 Introduction
 
-Welcome to **VectorAI**! This is my first major project built using the **Next.js** framework. As a 3rd-year Computer Engineering student who previously worked with the MERN stack, I wanted to challenge myself to learn modern full-stack practices, server-side rendering, and AI integration.
+Welcome to **VectorAI**! This is my first major project built using the **Next.js** framework. As a 3rd-year Computer Engineering student who previously worked with the MERN stack, I wanted to challenge myself to move beyond basic CRUD apps and explore modern full-stack practices, server-side rendering, and AI integration.
 
 VectorAI is a comprehensive career coaching platform designed to help students and professionals navigate their career paths. It leverages the power of **Google's Gemini AI** to provide personalized resume feedback, technical revision quizzes, and cover letter generation.
 
 ### 🔗 Live Demo
-[**View Live Demo**](INSERT_YOUR_HOSTED_LINK_HERE)
+[**View Live Demo**](https://vector-ai-pi.vercel.app/)
 
 ### 📺 Walkthrough Video
 [**Watch the Demo Video**](INSERT_YOUR_YOUTUBE_OR_DRIVE_LINK_HERE)
@@ -18,31 +16,25 @@ VectorAI is a comprehensive career coaching platform designed to help students a
 
 ## 💡 What I Learned & Key Features
 
-Building this project was a massive learning curve. Here is a breakdown of the features and the technical concepts I explored while implementing them:
+Building this project was a massive learning curve, and I tried to pack in as many new technologies as I could to see how they work together. Here is a breakdown of what I built and what I figured out along the way:
 
 ### 1. 🤖 AI-Powered Resume Builder
-* **The Feature:** Generates ATS-optimized resume content tailored to a specific industry and role. It renders the resume in Markdown and allows PDF downloads.
-* **My Learning:** I learned how to prompt engineering with the **Gemini API** to get structured outputs. I also got hands-on experience with **React Hook Form** and **Zod** to manage complex forms and validation, ensuring the user input is clean before sending it to the AI.
+I wanted to build a tool that actually helps you write better resumes, not just format them. This feature generates ATS-optimized content tailored to a specific industry and role, renders it in Markdown, and lets you download it as a PDF. The coolest part for me was figuring out **Prompt Engineering** with the **Gemini API** to get structured, useful outputs. On the frontend, I used **React Hook Form** and **Zod** to handle the complex form validation—it was a bit tricky at first, but it ensures the data sent to the AI is always clean.
 
 ### 2. 🧠 AI Mock Interview Quiz
-* **The Feature:** Instead of a generic video call, I built a focused **10-question technical quiz** to help users revise concepts. The AI generates multiple-choice questions (MCQs) specific to the user's industry and skills (e.g., React, Node.js). It provides real-time scoring and detailed explanations for every answer.
-* **My Learning:** This was a great exercise in "Prompt Engineering." I had to specifically instruct the AI to return data in a strict **JSON format** so my frontend could parse the questions, options, and correct answers without errors. I also learned how to visualize the quiz performance trends using **Recharts**.
+Instead of a generic video call, I built a focused **10-question technical quiz** to help users revise their concepts. The AI generates multiple-choice questions (MCQs) specific to the user's tech stack (like React or Node.js) and gives real-time scoring. This was a great lesson in controlling AI output; I had to specifically instruct the Gemini API to return data in a strict **JSON format** so my code could parse the questions and answers without breaking. I also learned how to use **Recharts** to visualize performance trends over time, which looks really professional on the dashboard.
 
 ### 3. 📝 Intelligent Cover Letter Generator
-* **The Feature:** Takes a job description and user profile to generate a highly customized cover letter.
-* **My Learning:** I explored how to parse text and context dynamically to create relevant content that matches a job description's tone.
+Writing cover letters is tedious, so I automated it. This tool takes a job description and your profile to generate a highly customized cover letter. I learned a lot about how to parse text and context dynamically to create content that matches the tone of a specific job description, making the AI feel much more "human."
 
 ### 4. 📊 Interactive Dashboard & Industry Insights
-* **The Feature:** A dashboard showing market outlook, salary ranges, and top skills for the user's industry.
-* **My Learning:** This was my introduction to **Inngest**. I learned about **Cron Jobs** and serverless background functions. Instead of manually updating data, I set up Inngest to fetch and update industry insights weekly automatically. It was fascinating to see how background jobs work in a serverless environment!
+The dashboard shows real-time market outlooks, salary ranges, and top skills for different industries. This was my introduction to **Inngest** and background jobs. Instead of manually updating data, I set up Inngest to run **Cron Jobs** that fetch and update industry insights every week automatically. It was fascinating to see how serverless background functions work—it feels like having a separate robot doing chores for your app!
 
 ### 5. 🔐 Authentication & Database
-* **The Feature:** Secure login/signup and data storage.
-* **My Learning:** Coming from a raw MongoDB background, using **Clerk** for authentication felt like magic—it handled sessions and protected routes seamlessly. I also moved to a relational database using **PostgreSQL (NeonDB)** and **Prisma ORM**. Defining schemas in `schema.prisma` and understanding relations (like `User` to `Resume`) was a great upgrade from NoSQL.
+Coming from a raw MongoDB background, using **Clerk** for authentication felt like magic—it handled sessions and protected routes seamlessly without me writing a ton of boilerplate. For the database, I switched to a relational model using **PostgreSQL (via NeonDB)** and **Prisma ORM**. Defining schemas in `schema.prisma` and understanding relations (like connecting a `User` to their `Resume`) gave me a much better grasp of how structured data should be handled compared to NoSQL.
 
 ### 6. 💳 Subscription System (Bonus Learning)
-* **The Feature:** Integrated a payment gateway for Pro plans.
-* **My Learning:** I integrated **Cashfree Payments** and learned how to handle **Webhooks**. Debugging webhook events to update the user's subscription status in the database was a challenging but rewarding experience.
+I wanted to try implementing a real-world payment flow, so I integrated **Cashfree Payments** for the Pro plan. The biggest learning here was handling **Webhooks**. I had to figure out how to listen for payment events securely and update the user's subscription status in the database automatically. Debugging those webhooks was challenging, but seeing it work for the first time was super satisfying.
 
 ---
 
@@ -131,7 +123,7 @@ Open [http://localhost:3000](https://www.google.com/search?q=http://localhost:30
 
 ## 🗂️ Database Schema
 
-I designed the database to be relational. You can find the full schema in `prisma/schema.prisma`. Here are the core models:
+I designed the database to be relational (SQL). You can find the full schema in `prisma/schema.prisma`. Here are the core models:
 
 * **User**: Stores profile, subscription status, and relations to other models.
 * **IndustryInsights**: Stores cached industry data (salary, growth rate) updated via Inngest.
@@ -141,8 +133,4 @@ I designed the database to be relational. You can find the full schema in `prism
 
 ---
 
-*Made with ❤️ by Atharva.*
-
-```
-
-```
+*Made with ❤️ and a lot of coffee by Atharva.*
