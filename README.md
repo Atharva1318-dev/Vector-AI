@@ -2,7 +2,7 @@
 
 ## 🌟 Introduction
 
-Welcome to **VectorAI**! This is my first major project built using the **Next.js** framework. As a 3rd-year Computer Engineering student who previously worked with the MERN stack, I wanted to challenge myself to move beyond basic CRUD apps and explore modern full-stack practices, server-side rendering, and AI integration.
+Welcome to **VectorAI**! This is my first major project built using the **Next.js** framework. I had previously worked with the MERN stack, I wanted to explore modern full-stack practices, server-side rendering, and AI integration.
 
 VectorAI is a comprehensive career coaching platform designed to help students and professionals navigate their career paths. It leverages the power of **Google's Gemini AI** to provide personalized resume feedback, technical revision quizzes, and cover letter generation.
 
