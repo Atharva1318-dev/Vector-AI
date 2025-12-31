@@ -10,7 +10,7 @@ VectorAI is a comprehensive career coaching platform designed to help students a
 [**View Live Demo**](https://vector-ai-pi.vercel.app/)
 
 ### 📺 Walkthrough Video
-[**Watch the Demo Video**](INSERT_YOUR_YOUTUBE_OR_DRIVE_LINK_HERE)
+[**Watch the Demo Video**](https://github.com/user-attachments/assets/6d241e19-df8c-4325-bb2a-683cd3363a9f)
 
 ---
 
