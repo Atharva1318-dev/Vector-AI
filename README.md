@@ -19,7 +19,7 @@ VectorAI is a comprehensive career coaching platform designed to help students a
 Building this project was a massive learning curve, and I tried to pack in as many new technologies as I could to see how they work together. Here is a breakdown of what I built and what I figured out along the way:
 
 ### 1. 🤖 AI-Powered Resume Builder
-I wanted to build a tool that actually helps you write better resumes, not just format them. This feature generates ATS-optimized content tailored to a specific industry and role, renders it in Markdown, and lets you download it as a PDF. On the frontend, I used **React Hook Form** and **Zod** to handle the complex form validation—it was a bit tricky at first, but it ensures the data sent to the AI is always clean.
+I wanted to build a tool that actually helps you write better resumes, not just format them. This feature generates ATS-optimized content tailored to a specific industry and role, renders it in Markdown, and lets you download it as a PDF. On the frontend, I used **React Hook Form** and **Zod** to handle the complex form validation it ensures the data sent to the AI is always clean.
 
 ### 2. 🧠 AI Mock Interview Quiz
 Instead of a generic video call, I built a focused **10-question technical quiz** to help users revise their concepts. The AI generates multiple-choice questions (MCQs) specific to the user's tech stack (like React or Node.js) and gives real-time scoring. I learned how to use **Recharts** to visualize performance trends over time, which looks really professional on the dashboard.
@@ -33,7 +33,7 @@ The dashboard shows real-time market outlooks, salary ranges, and top skills for
 ### 5. 🔐 Authentication & Database
 Coming from a raw MongoDB background, using **Clerk** for authentication felt like magic—it handled sessions and protected routes seamlessly without me writing a ton of boilerplate. For the database, I switched to a relational model using **PostgreSQL (via NeonDB)** and **Prisma ORM**. Defining schemas in `schema.prisma` and understanding relations (like connecting a `User` to their `Resume`) gave me a much better grasp of how structured data should be handled compared to NoSQL.
 
-### 6. 💳 Subscription System (Bonus Learning)
+### 6. 💳 Subscription System
 I wanted to try implementing a real-world payment flow, so I integrated **Cashfree Payments** for the Pro plan. The biggest learning here was handling **Webhooks**. I had to figure out how to listen for payment events securely and update the user's subscription status in the database automatically. Debugging those webhooks was challenging, but seeing it work for the first time was super satisfying.
 
 ---
