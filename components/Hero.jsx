@@ -101,7 +101,7 @@ function Hero() {
     return (
         // PRESERVED: Your original background setup
         <section ref={sectionRef} className="relative min-h-[90vh] overflow-hidden grid-background pt-32 pb-16 md:pt-38 md:pb-28">
-            <BackgroundRippleEffect interactive={true} />
+            <BackgroundRippleEffect rows={14} cols={30} interactive={true} />
             <div className="absolute inset-0 bg-mesh-gradient" />
             <div className="absolute right-[20%] top-[15%] h-[500px] w-[500px] rounded-full bg-indigo-600/20 blur-[120px] glow-indigo" />
             <div className="absolute bottom-[10%] left-[15%] h-[400px] w-[400px] rounded-full bg-purple-600/20 blur-[100px] glow-purple" />
