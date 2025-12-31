@@ -23,10 +23,10 @@ const pricingPlans = [
         price: "0",
         description: "Perfect for getting started with career acceleration.",
         features: [
+            "Overall 10 requests per day",
             "Industry Trends & Insights",
-            "1 Resume Optimization per month",
-            "1 AI Mock Interview per month",
-            "Basic Salary Insights",
+            "Resume Optimization",
+            "AI Mock Interview",
         ],
         cta: "Get Started",
         popular: false,
@@ -36,12 +36,9 @@ const pricingPlans = [
         price: "199",
         description: "Unlock full AI potential to land your dream job faster.",
         features: [
+            "Overall 18 requests per day",
             "Everything in Free",
-            "Unlimited Resume Optimizations",
-            "Unlimited AI Cover Letters",
-            "Unlimited Mock Interviews",
             "Real-time ATS Scoring",
-            "Exclusive Job Market Analytics",
         ],
         cta: "Upgrade Now",
         popular: true, // This drives the highlighting logic

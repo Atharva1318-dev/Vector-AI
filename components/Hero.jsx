@@ -115,7 +115,6 @@ function Hero() {
                             <div className="flex items-center gap-2 mb-6">
                                 <span className="px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-sm font-medium backdrop-blur-sm flex items-center gap-2">
                                     <Sparkles className="w-4 h-4" />
-                                    Powered by Gemini API
                                 </span>
                             </div>
 

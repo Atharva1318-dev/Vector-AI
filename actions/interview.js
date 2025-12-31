@@ -107,7 +107,7 @@ export async function saveQuizResults(questions, answers, score) {
         try {
             const isPro = await isProUser();
             if ((isPro && user.requestsToday >= PLAN_LIMITS.PRO.requestsPerDay) || (user.requestsToday >= PLAN_LIMITS.FREE.requestsPerDay)) throw new Error("Daily limit reached, please try again later.");
-            
+
             const result = await model.generateContent(improvementPrompt);
             const response = result.response;
             // Now we have got the response now we need to fetch the text from it, we use the function response.text()

@@ -14,7 +14,7 @@ const PaymentSuccessPage = () => {
         // Auto-redirect after 3 seconds
         const timer = setTimeout(() => {
             router.push("/dashboard");
-        }, 3000);
+        }, 1000);
         return () => clearTimeout(timer);
     }, [router]);
 

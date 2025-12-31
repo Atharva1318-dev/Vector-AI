@@ -14,14 +14,14 @@ function MockInterviewPage() {
             </Link>
 
             <div>
-                <h1 className="text-5xl font-semibold gradient gradient-title">Mock Interview</h1>
+                <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">Mock Interview</h1>
                 <p className="text-muted-foreground">
                     Test your knowledge with industry-specific questions
                 </p>
             </div>
 
             <Quiz />
-        </div>
+        </div >
     );
 }
 
