@@ -60,6 +60,15 @@ export async function generateQuiz() {
 
         const quiz = JSON.parse(cleanedText);
 
+        const newUser = await db.user.update({
+            where: {
+                clerkUserId: userId
+            },
+            data: {
+                requestsToday: user.requestsToday + 1,
+            }
+        });
+
         return quiz.questions;
     } catch (error) {
         console.error("Error generating quiz: ", error);
@@ -83,7 +92,7 @@ export async function saveQuizResults(questions, answers, score) {
         answer: q.correctAnswer,
         userAnswer: answers[index],
         isCorrect: q.correctAnswer === answers[index], //true or false
-        explaination: q.explaination,
+        explanation: q.explanation,
     }));
 
     const wrongAnswers = questionResults.filter((q) => !q.isCorrect); //as we know filter returns those for which the condition is true, so wherever q.isCorrect is false(wrong ans) we will '!' it and get that question
@@ -113,7 +122,7 @@ export async function saveQuizResults(questions, answers, score) {
             // Now we have got the response now we need to fetch the text from it, we use the function response.text()
             improvementTip = response.text().trim();
 
-            const newUser = db.user.update({
+            const newUser = await db.user.update({
                 where: {
                     clerkUserId: userId
                 },
@@ -161,7 +170,7 @@ export async function getAssessments() {
     if (!user) throw new Error("User not found");
 
     try {
-        const assessments = db.assessment.findMany({
+        const assessments = await db.assessment.findMany({
             where: { userId: user.id, },
             orderBy: {
                 createdAt: "asc",

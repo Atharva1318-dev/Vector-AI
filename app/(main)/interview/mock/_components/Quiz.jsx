@@ -1,7 +1,7 @@
 "use client"
 
 import { Progress } from "@/components/ui/progress"
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useState } from "react";
 import useFetch from "@/hooks/use-fetch";
 import { generateQuiz } from "@/actions/interview";
@@ -15,16 +15,20 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { BarLoader } from "react-spinners";
 
 import QuizResult from "./QuizResult";
+import gsap from "gsap";
 
 const Quiz = ({ }) => {
 
-    const [currentQuestion, setCurrentQuestion] = useState(0); //starting from the 0th index question, basically this state var will contain the index of the question and not the actual question
+    const [currentQuestion, setCurrentQuestion] = useState(0);
     const [answers, setAnswers] = useState([]);
     const [showExplaination, setShowExplaination] = useState(false);
 
     const { loading: generatingQuiz, fn: generateQuizFn, data: quizData, } = useFetch(generateQuiz);
-
     const { loading: savingQuiz, fn: saveQuizResult, data: quizResultData, setData: setQuizResultData } = useFetch(saveQuizResults);
+
+    const questionCardRef = useRef(null);
+    const optionsRef = useRef(null);
+    const explanationRef = useRef(null);
 
     useEffect(() => {
         if (quizData) {
@@ -32,16 +36,57 @@ const Quiz = ({ }) => {
         }
     }, [quizData]);
 
+    // Animate question and options when question changes
+    useEffect(() => {
+        if (questionCardRef.current) {
+            gsap.fromTo(
+                questionCardRef.current,
+                { opacity: 0, y: 20 },
+                { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }
+            );
+        }
+
+        if (optionsRef.current) {
+            gsap.fromTo(
+                optionsRef.current,
+                { opacity: 0, y: 15 },
+                { opacity: 1, y: 0, duration: 0.6, ease: "power2.out", delay: 0.1 }
+            );
+        }
+
+        setShowExplaination(false);
+    }, [currentQuestion]);
+
+    // Animate explanation when shown
+    useEffect(() => {
+        if (showExplaination && explanationRef.current) {
+            gsap.fromTo(
+                explanationRef.current,
+                { opacity: 0, scale: 0.95, y: 10 },
+                { opacity: 1, scale: 1, y: 0, duration: 0.4, ease: "back.out" }
+            );
+        }
+    }, [showExplaination]);
+
     const handleAnswer = (answer) => {
-        const newAnswers = [...answers]; // baki questions ke answers as it is rakho, and fir currentQuestion ka answer joh parameter mai answer aya hai voh set kardo
+        const newAnswers = [...answers];
         newAnswers[currentQuestion] = answer;
         setAnswers(newAnswers);
     }
 
     const handleCurrentQuestion = () => {
         if (currentQuestion < quizData.length - 1) {
-            setCurrentQuestion(currentQuestion + 1);
-            setShowExplaination(false);
+            // Animate out before changing question
+            gsap.to(questionCardRef.current, {
+                opacity: 0,
+                y: -20,
+                duration: 0.3,
+                ease: "power2.in",
+                onComplete: () => {
+                    setCurrentQuestion(currentQuestion + 1);
+                    setShowExplaination(false);
+                }
+            });
         } else {
             finishQuiz();
         }
@@ -55,12 +100,10 @@ const Quiz = ({ }) => {
             }
         });
         const score = (correct / quizData.length) * 100;
-        return score;    // we will show the percentage
+        return score;
     }
 
-
     const finishQuiz = async () => {
-        // First calculating the score
         const score = calculateScore();
         console.log("Score is: ", score);
         try {
@@ -69,7 +112,6 @@ const Quiz = ({ }) => {
         } catch (error) {
             toast.error(error.message || "Failed to save quiz results");
         }
-        //saveQuizResult();
     }
 
     if (generatingQuiz) {
@@ -85,7 +127,6 @@ const Quiz = ({ }) => {
     }
 
     if (quizResultData) {
-        console.log(quizResultData);
         return (
             <div>
                 <QuizResult resultData={quizResultData} onStartNew={startNewQuiz} />
@@ -93,10 +134,9 @@ const Quiz = ({ }) => {
         )
     }
 
-
     if (!quizData) {
         return (
-            <Card className="mx-1">
+            <Card className="mx-1 quiz-start-card">
                 <CardHeader>
                     <CardTitle>Ready to start your Quiz?</CardTitle>
                 </CardHeader>
@@ -116,37 +156,61 @@ const Quiz = ({ }) => {
     }
 
     const question = quizData[currentQuestion];
-    if (question) {
-        console.log(question);
-    }
 
     return (
-        <Card className="mx-2">
+        <Card className="mx-2 quiz-card" ref={questionCardRef}>
             <CardHeader>
-                <CardTitle>Question {currentQuestion + 1} of {quizData.length}</CardTitle>
+                <CardTitle>
+                    <div className="flex items-center justify-between">
+                        <span>Question {currentQuestion + 1} of {quizData.length}</span>
+                    </div>
+                </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
                 <p className="text-lg font-medium">
-                    {question.question} {/* as we know that it is array of objects,each element is an object, so in each object we are accessing the question, that's why question.question */}
+                    {question.question}
                 </p>
                 <hr />
-                <RadioGroup className="space-y-1" onValueChange={handleAnswer} value={answers[currentQuestion]}>
-                    {question.options.map((opt, index) => (
-                        <div className="flex items-center space-x-2" key={index}>
-                            <RadioGroupItem value={opt} id={`option-${index}`} />
-                            <Label htmlFor={`option-${index}`}>{opt}</Label>
-                        </div>
-                    ))}
-                </RadioGroup>
+                <div ref={optionsRef}>
+                    <RadioGroup className="space-y-1" onValueChange={handleAnswer} value={answers[currentQuestion] || ""}>
+                        {question.options.map((opt, index) => (
+                            <div
+                                className="flex items-center space-x-2 p-2 rounded hover:bg-muted/50 transition-colors cursor-pointer"
+                                key={index}
+                            >
+                                <RadioGroupItem value={opt} id={`option-${index}`} />
+                                <Label htmlFor={`option-${index}`} className="cursor-pointer">{opt}</Label>
+                            </div>
+                        ))}
+                    </RadioGroup>
+                </div>
 
-                {showExplaination && <div className="mt-1 p-2 bg-muted rounded-lg"><p className="font-medium">Explaination:</p><p className="text-muted-foreground">{question.explanation}</p></div>}
+                {showExplaination && (
+                    <div
+                        ref={explanationRef}
+                        className="mt-1 p-2 bg-muted rounded-lg border border-muted-foreground/20"
+                    >
+                        <p className="font-medium mb-1">Explanation:</p>
+                        <p className="text-muted-foreground">{question.explanation}</p>
+                    </div>
+                )}
             </CardContent>
-            <CardFooter>
-                {!showExplaination && <Button variant="outline" onClick={() => setShowExplaination(true)} disabled={!answers[currentQuestion]}>
-                    Explaination
-                </Button>}
+            <CardFooter className="flex gap-2">
+                {!showExplaination && (
+                    <Button
+                        variant="outline"
+                        onClick={() => setShowExplaination(true)}
+                        disabled={!answers[currentQuestion]}
+                    >
+                        Explanation
+                    </Button>
+                )}
                 {savingQuiz && <BarLoader className="mt-4" width={"100%"} color="gray" />}
-                <Button variant="outline" onClick={handleCurrentQuestion} disabled={!answers[currentQuestion] || savingQuiz}>
+                <Button
+                    variant="outline"
+                    onClick={handleCurrentQuestion}
+                    disabled={!answers[currentQuestion] || savingQuiz}
+                >
                     {currentQuestion < quizData.length - 1 ? "Next" : "Submit"}
                 </Button>
             </CardFooter>

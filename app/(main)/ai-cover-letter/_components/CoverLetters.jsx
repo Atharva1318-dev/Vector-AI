@@ -1,6 +1,6 @@
 "use client"
 
-import React from "react";
+import React, { useRef } from "react";
 import {
     Card,
     CardContent,
@@ -16,8 +16,13 @@ import { format } from "date-fns";
 import Link from "next/link";
 import { toast } from "sonner";
 import { refresh } from "next/cache";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
 
 function CoverLetters({ coverLetters }) {
+
+    const cardRef = useRef(null);
+    const containerRef = useRef(null);
 
     const { loading: isDeleting, error, fn: deleteFn, data: deletedLetter } = useFetch(deleteCoverLetter);
     const handleDelete = async (id) => {
@@ -34,11 +39,27 @@ function CoverLetters({ coverLetters }) {
         }
     }
 
+    useGSAP(() => {
+        // Animate form sections with stagger
+        gsap.from(cardRef.current, {
+            opacity: 0,
+            y: 40,
+            duration: 0.9,
+            stagger: 0.3,
+            ease: "power3.out",
+            scrollTrigger: {
+                trigger: containerRef.current,
+                start: "top 75%",
+                once: true
+            }
+        });
+    });
+
     return (
-        <div className="space-y-4">
+        <div ref={containerRef} className="space-y-4">
             {coverLetters.map((letter, idx) => {
                 return (
-                    <Card key={idx}>
+                    <Card ref={cardRef} key={idx}>
                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-900/10 blur-[100px] rounded-full pointer-events-none" />
                         <CardHeader>
                             <CardTitle>{letter.jobTitle} at {letter.companyName}</CardTitle>

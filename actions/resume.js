@@ -105,7 +105,7 @@ export async function improveResumeWithAI({ currentContent, type }) {
     const response = result.response;
     const improvedContent = response.text().trim();
 
-    const newUser = db.user.update({
+    const newUser = await db.user.update({
       where: {
         clerkUserId: userId
       },
@@ -216,7 +216,7 @@ export async function analyzeResumeATS({ resumeContent, companyName, jobTitle, j
 
     const analysis = JSON.parse(cleanedText);
     console.log(analysis);
-    const newUser = db.user.update({
+    const newUser = await db.user.update({
       where: {
         clerkUserId: userId
       },
