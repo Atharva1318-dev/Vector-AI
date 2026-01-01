@@ -103,7 +103,7 @@ const ResumeBuilder = ({ initialContent, plan }) => {
         gsap.from(titleRef.current, {
             opacity: 0,
             x: -50,
-            duration: 0.6,
+            duration: 0.95,
             ease: "power3.out"
         });
 
@@ -111,8 +111,8 @@ const ResumeBuilder = ({ initialContent, plan }) => {
         gsap.from(sectionsRef.current, {
             opacity: 0,
             y: 40,
-            duration: 0.6,
-            stagger: 0.1,
+            duration: 0.9,
+            stagger: 0.3,
             ease: "power3.out",
             scrollTrigger: {
                 trigger: containerRef.current,
@@ -127,14 +127,14 @@ const ResumeBuilder = ({ initialContent, plan }) => {
                 section.addEventListener("mouseenter", () => {
                     gsap.to(section, {
                         y: -4,
-                        duration: 0.3,
+                        duration: 0.4,
                         ease: "power2.out"
                     });
                 });
                 section.addEventListener("mouseleave", () => {
                     gsap.to(section, {
                         y: 0,
-                        duration: 0.3,
+                        duration: 0.4,
                         ease: "power2.out"
                     });
                 });

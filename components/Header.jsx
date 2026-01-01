@@ -68,7 +68,7 @@ const navAnimation = (el, visible, extra = {}) =>
         boxShadow: visible ? SHADOW : "none",
         width: visible ? "48%" : "100%",
         y: visible ? 20 : 0,
-        duration: 0.975,
+        duration: 1.1,
         ease: "power2.out",
         ...extra,
     });

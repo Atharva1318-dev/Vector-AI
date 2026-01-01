@@ -29,7 +29,7 @@ const DashboardView = ({ insights }) => {
         gsap.from(containerRef.current?.querySelector('[data-badge]'), {
             opacity: 0,
             y: -20,
-            duration: 0.7,
+            duration: 0.9,
             ease: "power3.out"
         });
 
@@ -37,8 +37,8 @@ const DashboardView = ({ insights }) => {
         gsap.from(cardsRef.current, {
             opacity: 0,
             y: 40,
-            duration: 0.8,
-            stagger: 0.1,
+            duration: 1,
+            stagger: 0.3,
             ease: "power3.out",
             scrollTrigger: {
                 trigger: containerRef.current,
@@ -51,7 +51,7 @@ const DashboardView = ({ insights }) => {
         gsap.from(chartRef.current, {
             opacity: 0,
             y: 50,
-            duration: 1,
+            duration: 1.2,
             ease: "power3.out",
             scrollTrigger: {
                 trigger: chartRef.current,
@@ -67,7 +67,7 @@ const DashboardView = ({ insights }) => {
                     gsap.to(card, {
                         y: -8,
                         boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.3)",
-                        duration: 0.4,
+                        duration: 0.5,
                         ease: "power2.out"
                     });
                 });
