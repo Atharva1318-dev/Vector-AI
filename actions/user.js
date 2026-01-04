@@ -11,7 +11,6 @@ export async function updateUser(data) {
     const user = await db.user.findUnique(
         {
             where: { clerkUserId: userId, }
-
         }
     )
 

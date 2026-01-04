@@ -100,7 +100,7 @@ function Hero() {
 
     return (
         // PRESERVED: Your original background setup
-        <section ref={sectionRef} className="relative min-h-[90vh] overflow-hidden grid-background pt-32 pb-16 md:pt-38 md:pb-28">
+        <section ref={sectionRef} className="relative min-h-[90vh] overflow-hidden grid-background pt-28 pb-16 md:pt-38 md:pb-28">
             <BackgroundRippleEffect rows={14} cols={30} interactive={true} />
             <div className="absolute inset-0 bg-mesh-gradient" />
             <div className="absolute right-[20%] top-[15%] h-[500px] w-[500px] rounded-full bg-indigo-600/20 blur-[120px] glow-indigo" />
@@ -110,7 +110,7 @@ function Hero() {
                 <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
 
                     {/* LEFT SIDE: Text Content */}
-                    <div className="flex flex-col gap-6 max-w-2xl">
+                    <div className="flex flex-col gap-6 max-w-2xl order-2 lg:order-1">
                         <div ref={titleRef}>
                             <div className="flex items-center gap-2 mb-6">
                                 <span className="px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-sm font-medium backdrop-blur-sm flex items-center gap-2">
@@ -118,12 +118,12 @@ function Hero() {
                                 </span>
                             </div>
 
-                            <h6 className="text-balance font-semibold leading-[1.1] tracking-tight text-white md:text-6xl lg:text-7xl">
+                            <h5 className="text-balance font-semibold leading-[1.1] tracking-tight text-white text-2xl md:text-6xl lg:text-7xl">
                                 Your Personal <br />
-                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">
+                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 text-2xl md:text-6xl lg:text-7xl">
                                     AI Career Coach
                                 </span>
-                            </h6>
+                            </h5>
                         </div>
 
 
@@ -145,7 +145,7 @@ function Hero() {
                     </div>
 
                     {/* RIGHT SIDE: The "Image" (Dynamic UI Composition) */}
-                    <div className="relative mx-auto w-full max-w-[600px] lg:max-w-none perspective-1000">
+                    <div className="relative mx-auto w-full max-w-[600px] lg:max-w-none perspective-1000 order-1 lg:order-2">
 
                         {/* Main Dashboard Preview Card */}
                         <div ref={heroVisualRef} className="relative z-10 rounded-3xl border border-white/10 bg-slate-950/50 backdrop-blur-xl shadow-2xl shadow-indigo-500/10 overflow-hidden">
@@ -171,9 +171,9 @@ function Hero() {
                                 </div>
 
                                 {/* Main Chart Area */}
-                                <div className="h-48 rounded-xl bg-slate-900/50 border border-white/5 p-4 relative overflow-hidden">
+                                <div className="h-16 md:h-48 rounded-xl bg-slate-900/50 border border-white/5 p-4 relative overflow-hidden">
                                     <div className="absolute inset-0 bg-gradient-to-t from-indigo-500/10 to-transparent opacity-50" />
-                                    <div className="flex items-end justify-between h-full gap-2 px-2 pb-2">
+                                    <div className="flex items-end justify-between h-full gap-2 px-2 pb-[0.1px] md:pb-2">
                                         {[40, 65, 55, 85, 75, 95, 80].map((h, i) => (
                                             <div
                                                 key={i}
@@ -193,7 +193,7 @@ function Hero() {
                         </div>
 
                         {/* Floating Element 1: Resume Score */}
-                        <div ref={floatingCard1Ref} className="absolute -top-12 -right-4 md:-right-12 z-20 bg-slate-900/90 border border-white/10 backdrop-blur-md p-4 rounded-2xl shadow-xl flex items-center gap-4 w-64">
+                        <div ref={floatingCard1Ref} className="absolute -top-12 -right-4 md:-right-12 z-20 bg-slate-900/90 border border-white/10 backdrop-blur-md p-2 md:p-4 rounded-2xl shadow-xl flex items-center gap-4 w-56 md:w-64">
                             <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center text-green-400">
                                 <FileText className="w-6 h-6" />
                             </div>
@@ -204,7 +204,7 @@ function Hero() {
                         </div>
 
                         {/* Floating Element 2: Interview Bot */}
-                        <div ref={floatingCard2Ref} className="absolute -bottom-8 -left-4 md:-left-12 z-30 bg-indigo-950/90 border border-indigo-500/30 backdrop-blur-md p-4 rounded-2xl shadow-2xl flex items-center gap-4 w-auto">
+                        <div ref={floatingCard2Ref} className="absolute -bottom-8 -left-4 md:-left-12 z-30 bg-indigo-950/90 border border-indigo-500/30 backdrop-blur-md p-2 md:p-4 rounded-2xl shadow-2xl flex items-center gap-4 w-auto">
                             <div className="w-12 h-12 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400 animate-pulse">
                                 <Bot className="w-6 h-6" />
                             </div>
