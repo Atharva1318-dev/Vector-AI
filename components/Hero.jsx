@@ -118,9 +118,9 @@ function Hero() {
                                 </span>
                             </div>
 
-                            <h5 className="text-balance font-semibold leading-[1.1] tracking-tight text-white text-2xl md:text-6xl lg:text-7xl">
+                            <h5 className="text-balance font-semibold leading-[1.1] tracking-tight text-white text-3xl md:text-6xl lg:text-7xl">
                                 Your Personal <br />
-                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 text-2xl md:text-6xl lg:text-7xl">
+                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 text-4xl md:text-6xl lg:text-7xl">
                                     AI Career Coach
                                 </span>
                             </h5>

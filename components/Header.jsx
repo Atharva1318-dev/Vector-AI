@@ -125,6 +125,7 @@ export const MobileNav = ({ children, visible }) => {
             navAnimation(ref.current, visible, {
                 padding: visible ? "0 12px" : "0",
                 borderRadius: visible ? "4px" : "2rem",
+                width: "100%",
             }),
         [visible]
     );
@@ -133,7 +134,7 @@ export const MobileNav = ({ children, visible }) => {
         <div
             ref={ref}
             className={cn(
-                "relative z-50 mx-auto flex w-full max-w-[calc(100vw-2rem)] flex-col px-0 py-2 lg:hidden",
+                "relative z-50 mx-auto flex w-full max-w-[calc(100vw-1rem)] flex-col px-0 py-2 lg:hidden",
                 visible && "bg-white/80 dark:bg-neutral-950/80"
             )}
         >
