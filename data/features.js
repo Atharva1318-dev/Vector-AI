@@ -1,8 +1,8 @@
-import { BrainCircuit, Briefcase, LineChart, ScrollText } from "lucide-react";
+import { Briefcase, LineChart, ScrollText, Sparkles } from "lucide-react";
 
 export const features = [
     {
-        icon: <BrainCircuit className="w-10 h-10 mb-4 text-primary" />,
+        icon: <Sparkles className="w-10 h-10 mb-4 text-primary" />,
         title: "AI-Powered Career Guidance",
         description:
             "Get personalized career advice and insights powered by advanced AI technology.",
