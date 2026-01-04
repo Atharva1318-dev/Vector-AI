@@ -22,7 +22,7 @@ Building this project was a massive learning curve, and I tried to pack in as ma
 I wanted to build a tool that actually helps you write better resumes, not just format them. This feature generates ATS-optimized content tailored to a specific industry and role, renders it in Markdown, and lets you download it as a PDF. On the frontend, I used **React Hook Form** and **Zod** to handle the complex form validation it ensures the data sent to the AI is always clean.
 
 ### 2. 🧠 AI Mock Interview Quiz
-Instead of a generic video call, I built a focused **10-question technical quiz** to help users revise their concepts. The AI generates multiple-choice questions (MCQs) specific to the user's tech stack (like React or Node.js) and gives real-time scoring. I learned how to use **Recharts** to visualize performance trends over time, which looks really professional on the dashboard.
+Instead of a generic video call, I built a focused **10-question technical quiz** to help users revise their concepts. The AI generates multiple-choice questions (MCQs) specific to the user's tech stack (like React or Node.js) and gives real-time scoring. I learned how to use **Recharts** to visualize performance trends over time.
 
 ### 3. 📝 Intelligent Cover Letter Generator
 Writing cover letters is tedious, so I automated it. This tool takes a job description and your profile to generate a highly customized cover letter. I learned a lot about how to parse text and context dynamically to create content that matches the tone of a specific job description, making the AI feel much more "human."
