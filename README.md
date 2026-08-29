@@ -50,46 +50,22 @@ I wanted to try implementing a real-world payment flow, so I integrated **Cashfr
 
 ```mermaid
 flowchart TD
-    User([👤 User])
+    User([User])
+    FE[Frontend - Next.js and React]
+    BE[Backend - Server Actions and API Routes]
+    AUTH[Clerk - Authentication]
+    DB[Prisma ORM and PostgreSQL]
+    AI[Google Gemini AI]
+    PAY[Cashfree Payments]
+    CRON[Inngest - Background Cron Jobs]
 
     User --> FE
-
-    subgraph FE [Frontend - Next.js and React]
-        direction LR
-        UI[Pages and Components]
-        Forms[Forms - React Hook Form and Zod]
-    end
-
     FE --> BE
-
-    subgraph BE [Backend - Next.js Server]
-        direction LR
-        SA[Server Actions]
-        API[API Routes and Webhooks]
-    end
-
     BE --> AUTH
-    BE --> DB_LAYER
-    SA --> AI
-    SA --> PAY
-    PAY --> API
-    Inngest --> API
-
-    AUTH[🔐 Clerk - Authentication]
-
-    subgraph DB_LAYER [Database Layer]
-        direction LR
-        Prisma[Prisma ORM] --> DB[(PostgreSQL - NeonDB)]
-    end
-
-    AI[🤖 Google Gemini AI]
-
-    subgraph PAY [Payments]
-        Cashfree[Cashfree Payments]
-    end
-
-    Inngest[⏰ Inngest - Weekly Cron Jobs]
-    Inngest --> AI
+    BE --> DB
+    BE --> AI
+    BE --> PAY
+    BE --> CRON
 ```
 
 ---
