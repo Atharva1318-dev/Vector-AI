@@ -50,21 +50,18 @@ I wanted to try implementing a real-world payment flow, so I integrated **Cashfr
 
 ```mermaid
 flowchart TD
-    %% Frontend Layer
-    subgraph Frontend [Client-Side (React / Tailwind)]
+    subgraph Frontend [Client Side - React and Tailwind]
         UI[Next.js Client Components]
-        Forms[React Hook Form + Zod]
+        Forms[React Hook Form and Zod]
     end
 
-    %% Backend Layer
-    subgraph Backend [Server-Side (Next.js)]
+    subgraph Backend [Server Side - Next.js]
         SA[Server Actions]
-        API[API Routes / Webhooks]
+        API[API Routes and Webhooks]
     end
 
-    %% External Services & Database
-    subgraph Services [External Services & DB]
-        DB[(PostgreSQL / NeonDB)]
+    subgraph Services [External Services and Database]
+        DB[(PostgreSQL via NeonDB)]
         Prisma[Prisma ORM]
         Clerk[Clerk Auth]
         Gemini[Google Gemini AI]
@@ -72,12 +69,11 @@ flowchart TD
         Inngest[Inngest Background Jobs]
     end
 
-    %% Connections
     User([User]) -->|Interacts| UI
     UI -->|Calls| SA
 
     SA -->|Auth Check| Clerk
-    SA <-->|Queries/Mutations| Prisma
+    SA <-->|Queries and Mutations| Prisma
     Prisma <--> DB
 
     SA -->|Prompts| Gemini
@@ -86,7 +82,7 @@ flowchart TD
     Cashfree -->|Payment Webhook| API
     Inngest -->|Cron Jobs| API
 
-    API <-->|Updates/Caches Data| Prisma
+    API <-->|Updates and Caches Data| Prisma
     API -->|Weekly Insights| Gemini
 ```
 
