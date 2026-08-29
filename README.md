@@ -7,9 +7,11 @@ Welcome to **VectorAI**! This is my first major project built using the **Next.j
 VectorAI is a comprehensive career coaching platform designed to help students and professionals navigate their career paths. It leverages the power of **Google's Gemini AI** to provide personalized resume feedback, technical revision quizzes, and cover letter generation.
 
 ### 🔗 Live Demo
+
 [**View Live Demo**](https://vector-ai-pi.vercel.app/)
 
 ### 📺 Walkthrough Video
+
 [**Watch the Demo Video**](https://github.com/user-attachments/assets/6d241e19-df8c-4325-bb2a-683cd3363a9f)
 
 ---
@@ -19,37 +21,89 @@ VectorAI is a comprehensive career coaching platform designed to help students a
 Building this project was a massive learning curve, and I tried to pack in as many new technologies as I could to see how they work together. Here is a breakdown of what I built and what I figured out along the way:
 
 ### 1. 🤖 AI-Powered Resume Builder
+
 I wanted to build a tool that actually helps you write better resumes, not just format them. This feature generates ATS-optimized content tailored to a specific industry and role, renders it in Markdown, and lets you download it as a PDF. On the frontend, I used **React Hook Form** and **Zod** to handle the complex form validation it ensures the data sent to the AI is always clean.
 
 ### 2. 🧠 AI Mock Interview Quiz
+
 Instead of a generic video call, I built a focused **10-question technical quiz** to help users revise their concepts. The AI generates multiple-choice questions (MCQs) specific to the user's tech stack (like React or Node.js) and gives real-time scoring.
 
 ### 3. 📝 Intelligent Cover Letter Generator
+
 Writing cover letters is tedious, so I automated it. This tool takes a job description and your profile to generate a highly customized cover letter. I learned a lot about how to parse text and context dynamically to create content that matches the tone of a specific job description, making the AI feel much more "human."
 
 ### 4. 📊 Interactive Dashboard & Industry Insights
+
 The dashboard shows real-time market outlooks, salary ranges, and top skills for different industries. This was my introduction to **Inngest** and background jobs. Instead of manually updating data, I set up Inngest to run **Cron Jobs** that fetch and update industry insights every week automatically. It was fascinating to see how serverless background functions work—it feels like having a separate robot doing chores for your app!
 
 ### 5. 🔐 Authentication & Database
+
 Coming from a raw MongoDB background, using **Clerk** for authentication felt like magic—it handled sessions and protected routes seamlessly without me writing a ton of boilerplate. For the database, I switched to a relational model using **PostgreSQL (via NeonDB)** and **Prisma ORM**. Defining schemas in `schema.prisma` and understanding relations (like connecting a `User` to their `Resume`) gave me a much better grasp of how structured data should be handled compared to NoSQL.
 
 ### 6. 💳 Subscription System
+
 I wanted to try implementing a real-world payment flow, so I integrated **Cashfree Payments** for the Pro plan. The biggest learning here was handling **Webhooks**. I had to figure out how to listen for payment events securely and update the user's subscription status in the database automatically. Debugging those webhooks was challenging, but seeing it work for the first time was super satisfying.
+
+---
+
+## 🏗️ Architecture
+
+```mermaid
+flowchart TD
+    %% Frontend Layer
+    subgraph Frontend [Client-Side (React / Tailwind)]
+        UI[Next.js Client Components]
+        Forms[React Hook Form + Zod]
+    end
+
+    %% Backend Layer
+    subgraph Backend [Server-Side (Next.js)]
+        SA[Server Actions]
+        API[API Routes / Webhooks]
+    end
+
+    %% External Services & Database
+    subgraph Services [External Services & DB]
+        DB[(PostgreSQL / NeonDB)]
+        Prisma[Prisma ORM]
+        Clerk[Clerk Auth]
+        Gemini[Google Gemini AI]
+        Cashfree[Cashfree Payments]
+        Inngest[Inngest Background Jobs]
+    end
+
+    %% Connections
+    User([User]) -->|Interacts| UI
+    UI -->|Calls| SA
+
+    SA -->|Auth Check| Clerk
+    SA <-->|Queries/Mutations| Prisma
+    Prisma <--> DB
+
+    SA -->|Prompts| Gemini
+    SA -->|Checkout| Cashfree
+
+    Cashfree -->|Payment Webhook| API
+    Inngest -->|Cron Jobs| API
+
+    API <-->|Updates/Caches Data| Prisma
+    API -->|Weekly Insights| Gemini
+```
 
 ---
 
 ## 🛠️ Tech Stack
 
-* **Framework:** Next.js 14 (App Router)
-* **Language:** JavaScript / JSX
-* **Styling:** Tailwind CSS, Shadcn UI (for accessible components), Lucide React (icons)
-* **Database:** PostgreSQL (via NeonDB)
-* **ORM:** Prisma
-* **Authentication:** Clerk
-* **AI Engine:** Google Gemini API
-* **Background Jobs:** Inngest
-* **Forms:** React Hook Form + Zod
-* **Payments:** Cashfree
+- **Framework:** Next.js 14 (App Router)
+- **Language:** JavaScript / JSX
+- **Styling:** Tailwind CSS, Shadcn UI (for accessible components), Lucide React (icons)
+- **Database:** PostgreSQL (via NeonDB)
+- **ORM:** Prisma
+- **Authentication:** Clerk
+- **AI Engine:** Google Gemini API
+- **Background Jobs:** Inngest
+- **Forms:** React Hook Form + Zod
+- **Payments:** Cashfree
 
 ---
 
@@ -58,6 +112,7 @@ I wanted to try implementing a real-world payment flow, so I integrated **Cashfr
 If you want to run this project locally to explore the code, follow these steps:
 
 ### 1. Clone the Repository
+
 ```bash
 git clone [https://github.com/YOUR_USERNAME/vector-ai.git](https://github.com/YOUR_USERNAME/vector-ai.git)
 cd vector-ai
@@ -120,4 +175,3 @@ npm run dev
 Open [http://localhost:3000](https://www.google.com/search?q=http://localhost:3000) with your browser to see the result.
 
 ---
-
