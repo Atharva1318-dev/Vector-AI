@@ -50,40 +50,46 @@ I wanted to try implementing a real-world payment flow, so I integrated **Cashfr
 
 ```mermaid
 flowchart TD
-    subgraph Frontend [Client Side - React and Tailwind]
-        UI[Next.js Client Components]
-        Forms[React Hook Form and Zod]
+    User([👤 User])
+
+    User --> FE
+
+    subgraph FE [Frontend - Next.js and React]
+        direction LR
+        UI[Pages and Components]
+        Forms[Forms - React Hook Form and Zod]
     end
 
-    subgraph Backend [Server Side - Next.js]
+    FE --> BE
+
+    subgraph BE [Backend - Next.js Server]
+        direction LR
         SA[Server Actions]
         API[API Routes and Webhooks]
     end
 
-    subgraph Services [External Services and Database]
-        DB[(PostgreSQL via NeonDB)]
-        Prisma[Prisma ORM]
-        Clerk[Clerk Auth]
-        Gemini[Google Gemini AI]
-        Cashfree[Cashfree Payments]
-        Inngest[Inngest Background Jobs]
+    BE --> AUTH
+    BE --> DB_LAYER
+    SA --> AI
+    SA --> PAY
+    PAY --> API
+    Inngest --> API
+
+    AUTH[🔐 Clerk - Authentication]
+
+    subgraph DB_LAYER [Database Layer]
+        direction LR
+        Prisma[Prisma ORM] --> DB[(PostgreSQL - NeonDB)]
     end
 
-    User([User]) -->|Interacts| UI
-    UI -->|Calls| SA
+    AI[🤖 Google Gemini AI]
 
-    SA -->|Auth Check| Clerk
-    SA <-->|Queries and Mutations| Prisma
-    Prisma <--> DB
+    subgraph PAY [Payments]
+        Cashfree[Cashfree Payments]
+    end
 
-    SA -->|Prompts| Gemini
-    SA -->|Checkout| Cashfree
-
-    Cashfree -->|Payment Webhook| API
-    Inngest -->|Cron Jobs| API
-
-    API <-->|Updates and Caches Data| Prisma
-    API -->|Weekly Insights| Gemini
+    Inngest[⏰ Inngest - Weekly Cron Jobs]
+    Inngest --> AI
 ```
 
 ---
